@@ -1,22 +1,22 @@
 #!/usr/bin/node
-
 const request = require('request');
-const url = process.argv[2];
-request.get(url, (err, response, body) => {
-  if (response.statusCode === 200) {
-    const content = JSON.parse(body);
-    const completed = {};
-    for (let i = 0; i < content.length; i++) {
-      if (content[i].completed === true) {
-        if (content[i].userId in completed) {
-          completed[content[i].userId] += 1;
-        } else {
-          completed[content[i].userId] = 1;
-        }
-      }
+
+if (process.argv.length > 2) {
+  request(process.argv[2], (error, response, responseBody) => {
+    const userCompletionCount = {};
+
+    if (error) {
+      console.log(error);
     }
-    console.log(completed);
-  } else {
-    console.log(err);
-  }
-});
+
+    JSON.parse(responseBody).forEach(item => {
+      if (item.completed) {
+        if (!userCompletionCount[item.userId]) {
+          userCompletionCount[item.userId] = 0;
+        }
+        userCompletionCount[item.userId]++;
+      }
+    });
+    console.log(userCompletionCount);
+  });
+}
